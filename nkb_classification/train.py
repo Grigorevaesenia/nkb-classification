@@ -213,12 +213,6 @@ def train(model,
             device,
             cfg)
 
-        import numpy as np
-        confidences = np.array(val_results['confidences'])
-        ground_truth = np.array(val_results['ground_truth'])
-        from sklearn.metrics import roc_auc_score
-        print(roc_auc_score(ground_truth, confidences[:, 1]))
-
         epoch_val_acc = None
         if experiment is not None:  # log metrics
             log_images(experiment, 
