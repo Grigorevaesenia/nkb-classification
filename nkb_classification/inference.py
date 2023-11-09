@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Any, Union
 
 from pathlib import Path
 
@@ -15,41 +15,43 @@ from nkb_classification.model import get_model
 from nkb_classification.utils import read_py_config
 
 
-
 @torch.no_grad()
 def inference(
     model: torch.nn.Module,
     loader: torch.utils.data.DataLoader, 
     save_path: str,
-    device: Union[torch.device, str],
+    device: Union[torch.device, str]
 ) -> None:
-    columns = loader.dataset.target_names.copy()
-    columns.append('path')
+    columns = ['path', 'xlt', 'ylt', 'xrb', 'yrb', 'label']
     inference_annotations = pd.DataFrame(columns=columns)
 
     model.eval()
 
-    for imgs, img_paths in tqdm(loader, leave=False, desc='Inference'):
+    for imgs, crops, img_paths in tqdm(loader, leave=False, desc='Inference'):
         imgs = imgs.float().to(device)
         preds = model(imgs)
         batch_annotations = []
-        for target_name in loader.dataset.target_names:
-            pred = preds[target_name]
-            pred = (
-                pred
-                .softmax(dim=-1)
-                .argmax(dim=1)
-                .cpu()
-                .numpy()
-                .tolist()
-            )
-            pred = [loader.dataset.idx_to_class[target_name][idx] for idx in pred]
-            batch_annotations.append(pred)
-        batch_annotations.append(list(img_paths))
+        batch_annotations.append(
+            img_paths
+        )
+        batch_annotations.append(
+            crops
+            .cpu()
+            .numpy()
+            .T
+        )
+        batch_annotations.append(
+            preds
+            .argmax(dim=1)
+            .cpu()
+            .numpy()
+        )
         batch_annotations = np.vstack(batch_annotations).T
-        inference_annotations = pd.concat([inference_annotations,
-                                        pd.DataFrame(batch_annotations,
-                                                        columns=columns)])
+        inference_annotations = pd.concat([
+            inference_annotations,
+            pd.DataFrame(batch_annotations,
+                         columns=columns)
+        ])
     inference_annotations.to_csv(Path(save_path, 'inference_annotations.csv'), index=False)
 
 
@@ -66,11 +68,12 @@ def main():
     device = torch.device(cfg.device)
 
     # get model
-    classes = data_loader.dataset.classes
-    model = get_model(cfg.model, classes, device, compile=cfg.compile)
+    label_names = cfg.label_names
+    model = get_model(cfg.model, label_names, device, compile=cfg.compile)
 
     # load weights
     model.load_state_dict(torch.load(cfg.model['checkpoint'], map_location='cpu'))
+    model.to(device)
 
     save_path = Path(cfg.save_path)
     save_path.mkdir(exist_ok=True, parents=True)
