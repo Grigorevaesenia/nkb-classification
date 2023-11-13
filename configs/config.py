@@ -12,9 +12,9 @@ device = 'cuda:1'
 enable_mixed_presicion = True
 enable_gradient_scaler = True
 
-label_names = ['true', 'random']
+label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/mobilenetv3_large_100_dummy'
+model_path = '/home/denis/src/project/models/false_positive_classification/mobilenetv3_large_100_v2_1'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -74,7 +74,7 @@ val_pipeline = A.Compose([
 
 train_data = {
     'type': 'CropsClassificationDataset',
-    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_random_cam_crops_v1/train',
+    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/train/',
     'label_names': label_names,
     'shuffle': True,
     'batch_size': 64,
@@ -83,7 +83,7 @@ train_data = {
 
 val_data = {
     'type': 'CropsClassificationDataset',
-    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_random_cam_crops_v1/val',
+    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/val/',
     'label_names': label_names,
     'shuffle': True,
     'batch_size': 64,

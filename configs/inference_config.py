@@ -7,9 +7,9 @@ compile = False
 
 device = 'cuda:1'
 
-save_path = '/home/denis/nkbtech/inference/crop_classification'
+save_path = '/home/denis/nkbtech/inference/crop_classification/two_detectors/inference_annotations.csv'
 
-label_names = ['true', 'random']
+label_names = ['true', 'false']
 
 img_size = 224
 

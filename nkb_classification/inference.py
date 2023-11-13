@@ -52,7 +52,7 @@ def inference(
             pd.DataFrame(batch_annotations,
                          columns=columns)
         ])
-    inference_annotations.to_csv(Path(save_path, 'inference_annotations.csv'), index=False)
+    inference_annotations.to_csv((save_path), index=False)
 
 
 def main():
