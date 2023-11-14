@@ -14,7 +14,7 @@ enable_gradient_scaler = True
 
 label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/mobilenetv3_large_100_v2_1'
+model_path = '/home/denis/src/project/models/false_positive_classification/mobilenetv3_large_100_v6'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -77,6 +77,7 @@ train_data = {
     'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/train/',
     'label_names': label_names,
     'shuffle': True,
+    'weighted_sampling': True,
     'batch_size': 64,
     'num_workers': 8,
 }   
@@ -86,6 +87,7 @@ val_data = {
     'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/val/',
     'label_names': label_names,
     'shuffle': True,
+    'weighted_sampling': False,
     'batch_size': 64,
     'num_workers': 8,
 }
@@ -101,13 +103,13 @@ optimizer = {
     'type': 'nadam',
     'lr': 1e-5,
     'weight_decay': 0.001,
-    'backbone_lr': 1e-3,
+    'backbone_lr': 1e-5,
     'classifier_lr': 1e-3,
 }
 
 lr_policy = {
     'type': 'multistep',
-    'steps': [3, 6],
+    'steps': [],
     'gamma': 0.1,
 }
 

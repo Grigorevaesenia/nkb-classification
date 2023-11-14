@@ -28,7 +28,7 @@ class CropsClassificationModel(nn.Module):
         emb = self.emb_model(x)
         return self.classifier(emb)
 
-    def set_backbone_state(self, state: str = 'freeze'):
+    def set_backbone_state(self, state: str):
         for param in self.emb_model.parameters():
             if state == 'freeze':
                 param.requires_grad = False
