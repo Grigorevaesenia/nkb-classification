@@ -6,6 +6,7 @@ import pandas as pd
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+from torchsampler import ImbalancedDatasetSampler
 
 import cv2
 import albumentations as A
@@ -49,6 +50,9 @@ class CropsClassificationDataset(Dataset):
             return self.transform(img), label
         return img, label
     
+    def get_labels(self):
+        return [self.label_to_idx[self.labels.loc[idx, 'label']] for idx in self.labels.index]
+    
 
 class InferDataset(Dataset):
     def __init__(self, root: str, transform=None):
@@ -90,9 +94,15 @@ def get_dataset(data: dict, pipeline: dict) -> DataLoader:
         data['label_names'],
         transform
     )
+    shuffle = data['shuffle']
+    sampler = None
+    if data['weighted_sampling']:
+        sampler = ImbalancedDatasetSampler(dataset)
+        shuffle = None
     loader = DataLoader(dataset,
-                        batch_size=data['batch_size'], 
-                        shuffle=data['shuffle'],
+                        batch_size=data['batch_size'],
+                        shuffle=shuffle,
+                        sampler=sampler,
                         num_workers=data['num_workers'],
                         pin_memory=True)
     return loader
