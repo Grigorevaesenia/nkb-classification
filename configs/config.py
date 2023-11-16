@@ -7,14 +7,15 @@ show_full_current_loss_in_terminal = False
 
 compile = False # Is not working correctly yet, so set to False
 log_gradients = False
-n_epochs = 10 + 1
+n_epochs = 60+1
 device = 'cuda:1'
 enable_mixed_presicion = True
 enable_gradient_scaler = True
 
+# true, false
 label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/mobilenetv3_large_100_v6'
+model_path = '/home/denis/src/project/models/false_positive_classification/ds3_mobilenetv3_large_100_focal_v4'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -28,34 +29,19 @@ img_size = 224
 
 train_pipeline = A.Compose([
     A.Resize(img_size, img_size),
-    # A.MotionBlur(blur_limit=3,
-    #              allow_shifted=True,
-    #              p=0.5),
-    # A.RandomBrightnessContrast(
-    #     brightness_limit=(-0.2, 0.2),
-    #     contrast_limit=(0.1, -0.5),
-    #     p=0.5,
-    # ),
-    # A.HueSaturationValue(hue_shift_limit=0, 
-    #                     sat_shift_limit=10, 
-    #                     val_shift_limit=50,
-    #                     p=0.5),
-    # A.RandomShadow(p=0.5),
-    # A.RandomFog(fog_coef_lower=0.3, 
-    #             fog_coef_upper=0.5, 
-    #             alpha_coef=0.28,
-    #             p=0.5),
-    # A.RandomRain(p=0.5),
-    # A.CoarseDropout(
-    #     max_holes=4,
-    #     min_holes=1,
-    #     max_height=0.2,
-    #     min_height=0.05,
-    #     max_width=0.2,
-    #     min_width=0.05,
-    #     fill_value=[0, 0.5, 1],
-    #     p=0.5,
-    # ),
+    A.MotionBlur(blur_limit=21,
+                 allow_shifted=True,
+                 p=0.5),   
+    A.CoarseDropout(
+        max_holes=8,
+        min_holes=2,
+        max_height=0.3,
+        min_height=0.1,
+        max_width=0.3,
+        min_width=0.1,
+        fill_value=[0, 0.5, 1],
+        p=1.,
+    ),
     A.Normalize(
         mean=(0.485, 0.456, 0.406),
         std=(0.229, 0.224, 0.225),
@@ -63,6 +49,7 @@ train_pipeline = A.Compose([
     ToTensorV2(),
 ])
 
+# val_pipeline = train_pipeline
 val_pipeline = A.Compose([
     A.Resize(img_size, img_size),
     A.Normalize(
@@ -74,7 +61,7 @@ val_pipeline = A.Compose([
 
 train_data = {
     'type': 'CropsClassificationDataset',
-    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/train/',
+    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_false_cam_crops_v3/train/',
     'label_names': label_names,
     'shuffle': True,
     'weighted_sampling': True,
@@ -84,7 +71,7 @@ train_data = {
 
 val_data = {
     'type': 'CropsClassificationDataset',
-    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_flase_cam_crops_v1/val/',
+    'root': '/home/denis/nkbtech/data/false_positive_classification/true_and_false_cam_crops_v3/val/',
     'label_names': label_names,
     'shuffle': True,
     'weighted_sampling': False,
@@ -109,10 +96,11 @@ optimizer = {
 
 lr_policy = {
     'type': 'multistep',
-    'steps': [],
+    'steps': [0, 20],
     'gamma': 0.1,
 }
 
 criterion = {
-    'type': 'CrossEntropyLoss'
+    'type': 'FocalLoss',
+    'gamma': 2.0
 }
