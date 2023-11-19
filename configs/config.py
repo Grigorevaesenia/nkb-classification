@@ -7,7 +7,7 @@ show_full_current_loss_in_terminal = False
 
 compile = False # Is not working correctly yet, so set to False
 log_gradients = False
-n_epochs = 60+1
+n_epochs = 100+1
 device = 'cuda:1'
 enable_mixed_presicion = True
 enable_gradient_scaler = True
@@ -15,7 +15,7 @@ enable_gradient_scaler = True
 # true, false
 label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/ds3_mobilenetv3_large_100_focal_v4'
+model_path = '/home/denis/src/project/models/false_positive_classification/ds3_augs_mobilenetv3_large_100_focal_v1'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -28,20 +28,49 @@ experiment = {
 img_size = 224
 
 train_pipeline = A.Compose([
-    A.Resize(img_size, img_size),
-    A.MotionBlur(blur_limit=21,
-                 allow_shifted=True,
-                 p=0.5),   
-    A.CoarseDropout(
-        max_holes=8,
-        min_holes=2,
-        max_height=0.3,
-        min_height=0.1,
-        max_width=0.3,
-        min_width=0.1,
-        fill_value=[0, 0.5, 1],
-        p=1.,
+    # A.Resize(
+    #     img_size,
+    #     img_size
+    # ),
+    A.LongestMaxSize(
+        img_size
     ),
+    A.HorizontalFlip(
+        p=0.5
+    ),
+    A.ChannelShuffle(
+        p=0.5
+    ),
+    # A.MotionBlur(
+    #     blur_limit=21,
+    #     allow_shifted=True,
+    #     p=0.5
+    # ),
+    # A.GaussNoise(
+    #     p=0.5
+    # ),
+    A.RandomSunFlare(
+        flare_roi=(0, 0, 1, 1),
+        num_flare_circles_lower=1,
+        num_flare_circles_upper=5,
+        src_radius=img_size//2,
+        p=0.5
+    ),
+    A.PadIfNeeded(
+        img_size,
+        img_size,
+        border_mode=cv2.BORDER_CONSTANT
+    ),
+    # A.CoarseDropout(
+    #     max_holes=4,
+    #     min_holes=2,
+    #     max_height=0.3,
+    #     min_height=0.2,
+    #     max_width=0.3,
+    #     min_width=0.2,
+    #     fill_value=[0, 0.5, 1],
+    #     p=0.5,
+    # ),
     A.Normalize(
         mean=(0.485, 0.456, 0.406),
         std=(0.229, 0.224, 0.225),
@@ -51,7 +80,14 @@ train_pipeline = A.Compose([
 
 # val_pipeline = train_pipeline
 val_pipeline = A.Compose([
-    A.Resize(img_size, img_size),
+    A.LongestMaxSize(
+        img_size
+    ),
+    A.PadIfNeeded(
+        img_size,
+        img_size,
+        border_mode=cv2.BORDER_CONSTANT
+    ),
     A.Normalize(
         mean=(0.485, 0.456, 0.406),
         std=(0.229, 0.224, 0.225),
