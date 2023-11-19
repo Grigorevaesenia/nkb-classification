@@ -49,6 +49,7 @@ def train_epoch(model,
     
     pbar = tqdm(train_loader, leave=False, desc='Training')
 
+    batch_to_log = None
     for img, target in pbar:
         img, target = img.to(device), target.to(device)
         optimizer.zero_grad()
@@ -101,6 +102,9 @@ def train_epoch(model,
 
             metrics_grad_log["Gradients/Total"].append(total_grad)
 
+        if batch_to_log is None:
+            batch_to_log = img.to('cpu')
+
     if scheduler is not None:
         scheduler.step()
 
@@ -108,7 +112,8 @@ def train_epoch(model,
         'running_loss': train_running_loss,
         'confidences': train_confidences,
         'predictions': train_predictions,
-        'ground_truth': train_ground_truth
+        'ground_truth': train_ground_truth,
+        'images': batch_to_log
     }
 
     if cfg.log_gradients:
@@ -215,35 +220,53 @@ def train(model,
 
         epoch_val_acc = None
         if experiment is not None:  # log metrics
-            log_images(experiment, 
-                    epoch, 
-                    val_results['images'])
+            log_images(
+                experiment,
+                'Train', 
+                epoch,
+                train_results['images']
+            )
+            
+            log_images(
+                experiment,
+                'Validation',
+                epoch, 
+                val_results['images']
+            )
 
             train_metrics = compute_metrics(train_results)
 
-            log_metrics(experiment,
+            log_metrics(
+                experiment,
                 epoch,
                 train_metrics,
-                'Train')
+                'Train'
+            )
 
             val_metrics = compute_metrics(val_results)
             epoch_val_acc = val_metrics['epoch_acc']
 
-            log_metrics(experiment,
+            log_metrics(
+                experiment,
                 epoch,
                 val_metrics,
-                'Validation')
+                'Validation'
+            )
             
-            log_confusion_matrix(experiment,
+            log_confusion_matrix(
+                experiment,
                 label_names,
                 epoch,
                 val_results,
-                'Validation')
+                'Validation'
+            )
             
             if cfg.log_gradients:
-                log_grads(experiment, 
+                log_grads(
+                    experiment, 
                     epoch, 
-                    train_results['metrics_grad_log'])
+                    train_results['metrics_grad_log']
+                )
 
         if epoch_val_acc is not None:
             if epoch_val_acc > best_val_acc:
