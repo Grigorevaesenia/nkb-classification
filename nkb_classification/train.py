@@ -246,6 +246,13 @@ def train(model,
             val_metrics = compute_metrics(val_results)
             epoch_val_acc = val_metrics['epoch_acc']
 
+            print('Train:')
+            for metric, value in train_metrics.items():
+                print(f'\t{metric}: {value}')
+            print('Validation:')
+            for metric, value in val_metrics.items():
+                print(f'\t{metric}: {value}')
+
             log_metrics(
                 experiment,
                 epoch,
