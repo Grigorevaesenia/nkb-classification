@@ -246,7 +246,7 @@ def train(model,
             val_metrics = compute_metrics(val_results)
             epoch_val_acc = val_metrics['epoch_acc']
 
-            print('Train:')
+            print('\nTrain:')
             for metric, value in train_metrics.items():
                 print(f'\t{metric}: {value}')
             print('Validation:')

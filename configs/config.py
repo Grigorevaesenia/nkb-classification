@@ -7,7 +7,7 @@ show_full_current_loss_in_terminal = False
 
 compile = False # Is not working correctly yet, so set to False
 log_gradients = False
-n_epochs = 100+1
+n_epochs = 30+1
 device = 'cuda:1'
 enable_mixed_presicion = True
 enable_gradient_scaler = True
@@ -15,7 +15,7 @@ enable_gradient_scaler = True
 # true, false
 label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/ds3_augs_mobilenetv3_large_100_focal_v1'
+model_path = '/home/denis/src/project/models/false_positive_classification/ds3_augs_efficientnet_b5_v2'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -28,10 +28,6 @@ experiment = {
 img_size = 224
 
 train_pipeline = A.Compose([
-    # A.Resize(
-    #     img_size,
-    #     img_size
-    # ),
     A.LongestMaxSize(
         img_size
     ),
@@ -52,8 +48,8 @@ train_pipeline = A.Compose([
     A.RandomSunFlare(
         flare_roi=(0, 0, 1, 1),
         num_flare_circles_lower=1,
-        num_flare_circles_upper=5,
-        src_radius=img_size//2,
+        num_flare_circles_upper=2,
+        src_radius=int(img_size/1.5),
         p=0.5
     ),
     A.PadIfNeeded(
@@ -61,16 +57,16 @@ train_pipeline = A.Compose([
         img_size,
         border_mode=cv2.BORDER_CONSTANT
     ),
-    # A.CoarseDropout(
-    #     max_holes=4,
-    #     min_holes=2,
-    #     max_height=0.3,
-    #     min_height=0.2,
-    #     max_width=0.3,
-    #     min_width=0.2,
-    #     fill_value=[0, 0.5, 1],
-    #     p=0.5,
-    # ),
+    A.CoarseDropout(
+        max_holes=4,
+        min_holes=2,
+        max_height=0.3,
+        min_height=0.2,
+        max_width=0.3,
+        min_width=0.2,
+        fill_value=[0, 0.5, 1],
+        p=0.5,
+    ),
     A.Normalize(
         mean=(0.485, 0.456, 0.406),
         std=(0.229, 0.224, 0.225),
@@ -116,7 +112,7 @@ val_data = {
 }
 
 model = {
-    'model': 'mobilenetv3_large_100',
+    'model': 'efficientnet_b5',
     'pretrained': True,
     'backbone_dropout': 0.5,
     'classifier_dropout': 0.5
@@ -126,17 +122,16 @@ optimizer = {
     'type': 'nadam',
     'lr': 1e-5,
     'weight_decay': 0.001,
-    'backbone_lr': 1e-5,
+    'backbone_lr': 1e-4,
     'classifier_lr': 1e-3,
 }
 
 lr_policy = {
     'type': 'multistep',
-    'steps': [0, 20],
+    'steps': [0, 10],
     'gamma': 0.1,
 }
 
 criterion = {
-    'type': 'FocalLoss',
-    'gamma': 2.0
+    'type': 'CrossEntropyLoss'
 }

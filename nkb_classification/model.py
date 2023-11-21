@@ -15,16 +15,6 @@ class CropsClassificationModel(nn.Module):
                  label_names: list):
         super().__init__()
         self.emb_model = timm.create_model(cfg_model['model'], pretrained=cfg_model['pretrained'])
-        if cfg_model['model'].startswith('mobilenet'):
-            for name, child in self.emb_model.named_children():
-                if name in ['conv_stem', 'bn1']:
-                    for param in child.parameters():
-                        param.requires_grad = False
-                elif name == 'blocks':
-                    for name_, child_ in child.named_children():
-                        if name_ in ['0', '1', '2', '3']:
-                            for param in child_.parameters():
-                                param.requires_grad = False
         self.emb_size = self.emb_model.num_features
         self.emb_model.reset_classifier(0)  # a simpler way to get emb_model from a timm model
         self.set_dropout(self.emb_model, cfg_model['backbone_dropout'])
