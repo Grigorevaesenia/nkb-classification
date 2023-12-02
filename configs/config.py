@@ -15,7 +15,7 @@ enable_gradient_scaler = True
 # true, false
 label_names = [0, 1]
 
-model_path = '/home/denis/src/project/models/false_positive_classification/ds3_augs_efficientnet_b5_v2'
+model_path = '/home/denis/src/project/models/false_positive_classification/ds3_augs_efficientnet_b5_v5'
 
 experiment = {
     'api_key_path': '/home/denis/nkbtech/nkb_classification/configs/comet_api_key.txt',
@@ -58,12 +58,12 @@ train_pipeline = A.Compose([
         border_mode=cv2.BORDER_CONSTANT
     ),
     A.CoarseDropout(
-        max_holes=4,
+        max_holes=3,
         min_holes=2,
-        max_height=0.3,
-        min_height=0.2,
-        max_width=0.3,
-        min_width=0.2,
+        max_height=0.5,
+        min_height=0.3,
+        max_width=0.5,
+        min_width=0.3,
         fill_value=[0, 0.5, 1],
         p=0.5,
     ),
@@ -121,8 +121,8 @@ model = {
 optimizer = {
     'type': 'nadam',
     'lr': 1e-5,
-    'weight_decay': 0.001,
-    'backbone_lr': 1e-4,
+    'weight_decay': 0.1,
+    'backbone_lr': 1e-5,
     'classifier_lr': 1e-3,
 }
 
