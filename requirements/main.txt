@@ -8,7 +8,14 @@ pandas>=1.1.4
 torchsampler
 comet-ml
 timm
+pyyaml
 
 wheel
 setuptools
 ninja
+requests
+torch
+torchvision
+tqdm
+timm
+github.com/deepglint/unicom.git

@@ -6,7 +6,7 @@ from albumentations.pytorch import ToTensorV2
 
 n_epochs = 51
 device = "cuda:0"
-model_path = "/home/alexander/src/project/models/classification/nkb-breed/mobnetv3l_augs_baseline_224/last.pth"
+model_path = f"/root/nkb-classification/exp"
 
 
 inference_pipeline = A.Compose(

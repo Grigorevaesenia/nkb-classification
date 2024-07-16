@@ -12,7 +12,6 @@ def get_requirements(path: str) -> List[str]:
     return requirements
 
 
-__version__ = "0.0.1"
 url = "https://github.com/nkb-tech/nkb-classification.git"
 
 setup(
@@ -21,7 +20,7 @@ setup(
     url=url,
     description="Repository of common tools of NKB team",
     author="Aleksandr Nevarko",
-    packages=find_packages(),
+    packages=find_packages(exclude=['configs/', 'requirements/']),
     python_requires=">=3.7",
     keywords=["pytorch", "classification"],
     install_requires=get_requirements("requirements/main.txt"),

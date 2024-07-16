@@ -16,9 +16,9 @@ enable_gradient_scaler = True
 
 task = "single"
 
-target_column = "label"
+target_column = "column_0"
 
-model_path = f"/home/a.nevarko/projects/parking/models/occupancy/128_sputnik_6k_+spaces1000_resnet14t_focal_gamma_1_w"
+model_path = f"/root/nkb-classification/exp"
 
 experiment = {
     "comet_api_cfg_path": "configs/comet_api_cfg.yml",
@@ -38,7 +38,6 @@ train_pipeline = A.Compose(
             img_size,
             img_size,
             always_apply=True,
-            border_mode=cv2.BORDER_CONSTANT,
         ),
         # A.MotionBlur(blur_limit=3, allow_shifted=True, p=0.5),
         A.HorizontalFlip(p=0.5),
@@ -88,7 +87,6 @@ val_pipeline = A.Compose(
             img_size,
             img_size,
             always_apply=True,
-            border_mode=cv2.BORDER_CONSTANT,
         ),
         A.Normalize(
             mean=(0.485, 0.456, 0.406),
@@ -110,9 +108,9 @@ weighted_sampling : works only for single task
 
 train_data = {
     "type": "AnnotatedSingletaskDataset",
-    "annotations_file": "/home/a.nevarko/projects/datasets/parking/sputnik_parking/sputnik6k_+spaces100_tr_sp_1k_val.csv",
-    # "image_base_dir": '/home/slava/hdd/hdd4/Datasets/petsearch/Dog_expo_Vladimir_02_07_2023_mp4_frames/multiclass_v4/images',
-    "target_column": target_column,
+    "annotations_file": "/root/nkb-classification/test.csv",
+    "image_base_dir": '/root/nkb-classification/nkb_classification/test',
+    "target_column": 'column_0',
     # "root": "/home/a.nevarko/projects/datasets/parking/kaggle/pklot_original/spaces1000/train",
     "fold": "train",
     "weighted_sampling": True,
@@ -137,7 +135,7 @@ train_data = {
 
 val_data = {
     "type": "AnnotatedSingletaskDataset",
-    "annotations_file": "/home/a.nevarko/projects/datasets/parking/sputnik_parking/sputnik6k_+spaces100_tr_sp_1k_val.csv",
+    "annotations_file": "/root/nkb-classification/test.csv",
     # "image_base_dir": '/home/slava/hdd/hdd4/Datasets/petsearch/Dog_expo_Vladimir_02_07_2023_mp4_frames/multiclass_v4/images',
     # "root": "/home/a.nevarko/projects/datasets/parking/kaggle/pklot_original/spaces1000/val",
     "target_column": target_column,
@@ -148,6 +146,7 @@ val_data = {
     "num_workers": 10,
     "size": img_size,
 }
+
 
 # val_data = {
 #     "type": "AnnotatedSingletaskDataset",

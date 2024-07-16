@@ -20,13 +20,10 @@ from torchvision.utils import make_grid
 def get_experiment(cfg_exp):
     if cfg_exp is None:
         return None
-    api_cfg_path = cfg_exp.pop("comet_api_cfg_path")
-    with open(api_cfg_path, "r") as api_cfg_file:
-        comet_cfg = yaml.safe_load(api_cfg_file)
-        cfg_exp["api_key"] = comet_cfg["api_key"]
-        cfg_exp["workspace"] = comet_cfg["workspace"]
-        cfg_exp["project_name"] = comet_cfg["project_name"]
+    with open(cfg_exp["api_key_path"],'r') as f:
+        cfg_exp["api_key"] = yaml.load(f, Loader=yaml.SafeLoader)
     name = cfg_exp.pop("name")
+    cfg_exp.pop("api_key_path")
     exp = Experiment(**cfg_exp)
     exp.set_name(name)
     return exp

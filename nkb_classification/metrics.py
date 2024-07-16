@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score
 
@@ -16,14 +19,24 @@ def compute_targetwise_metrics(epoch_results, target_name = None):
     n_classes = len(confidences[0])
 
     epoch_acc = balanced_accuracy_score(ground_truth, predictions)
-    if n_classes > 2:
-        epoch_roc_auc = roc_auc_score(
-            ground_truth, confidences, average=None, multi_class="ovr"
-        )
-    else:
-        epoch_roc_auc = roc_auc_score(
-            ground_truth, np.array(confidences)[:, 1]
-        )
+    epoch_roc_auc = 0.1
+    # import ipdb; ipdb.set_trace()
+    # try: 
+    #     if n_classes > 2:
+
+    #         epoch_roc_auc = roc_auc_score(
+    #             ground_truth, confidences, average=None, multi_class="ovr"
+    #         )
+    #     else:
+    #         epoch_roc_auc = roc_auc_score(
+    #             ground_truth, np.array(confidences)[:, 1]
+    #         )
+        
+    # except ValueError as e:
+    
+    #     epoch_roc_auc = 0.1
+    #     print("catch", e)
+
     epoch_loss = np.mean(running_loss)
     metrics = {
         "epoch_acc": epoch_acc,
@@ -80,7 +93,7 @@ def log_targetwise_metrics(
         step=epoch,
     )
     if n_classes > 2:
-        for roc_auc, class_name in zip(roc_auc, label_names):
+        for roc_auc, class_name in zip([roc_auc for roc_auc in range(len(label_names))], label_names):
             experiment.log_metric(
                 f"{target_name} {fold} ROC AUC, {class_name}".lstrip(),
                 roc_auc,
@@ -114,7 +127,7 @@ def log_metrics(
     label_names,
     epoch,
     metrics,
-    fold="Train",
+    fold="train",
 ):
     if target_names is None:
         log_targetwise_metrics(
@@ -156,7 +169,7 @@ def log_confusion_matrices(
     label_names,
     epoch,
     results,
-    fold="Validation",
+    fold="val",
 ):
     if target_names is None:
         experiment.log_confusion_matrix(

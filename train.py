@@ -24,6 +24,10 @@ from nkb_classification.utils import (
     read_py_config,
 )
 
+import cv2
+import torchvision.transforms as T
+from PIL import Image
+
 
 class TrainPbar(tqdm):
     def __init__(
@@ -81,7 +85,6 @@ class TrainLogger:
             self.epoch_ground_truth = []
 
             self.target_names = None
-            # import ipdb; ipdb.set_trace()
             self.label_names = list(self.class_to_idx.keys())
 
         elif self.task == 'multi':
@@ -203,6 +206,12 @@ class TrainLogger:
                 log_grads(
                     self.experiment, epoch, train_results["metrics_grad_log"]
                 )
+        else:
+            with open('metrics.txt', 'a') as f:
+                f.write(f'train_results: {train_results["metrics"]} \n')
+                f.write(f'val_results: {val_results["metrics"]} \n')
+            #  'metrics': {'epoch_acc': 0.0, 'epoch_roc_auc': 0.1, 'epoch_loss': 4.568231582641602, 'loss': [4.568231582641602]}}
+            
 
 
 def train_epoch(
@@ -396,6 +405,14 @@ def main():
     exec(read_py_config(cfg_file), globals(), globals())
     train_loader = get_dataset(cfg.train_data, cfg.train_pipeline)
     val_loader = get_dataset(cfg.val_data, cfg.val_pipeline)
+    image_dir = 'exp'
+    transform = T.ToPILImage()
+    for i in range(len(train_loader.dataset)):
+        tensor,_ = train_loader.dataset[i]
+        transformed_img = transform(tensor)
+        image_filename = os.path.join(image_dir, f'{i}.jpg')
+        transformed_img.save(image_filename)
+    ##############################################################################
     classes = train_loader.dataset.classes
     device = torch.device(cfg.device)
     model = get_model(cfg.model, classes, device, compile=cfg.compile)

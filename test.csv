@@ -1,0 +1,5 @@
+,column_0,path,fold
+0,bowl,/root/nkb-classification/nkb_classification/test/saved_image0.jpg,train
+1,bowl,/root/nkb-classification/nkb_classification/test/saved_image1.jpg,train
+2,broccoli,/root/nkb-classification/nkb_classification/test/saved_image2.jpg,train
+3,bowl,/root/nkb-classification/nkb_classification/test/saved_image3.jpg,train
