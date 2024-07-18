@@ -24,9 +24,7 @@ from nkb_classification.utils import (
     read_py_config,
 )
 
-import cv2
-import torchvision.transforms as T
-from PIL import Image
+from save_augs import save_augs
 
 
 class TrainPbar(tqdm):
@@ -405,13 +403,13 @@ def main():
     exec(read_py_config(cfg_file), globals(), globals())
     train_loader = get_dataset(cfg.train_data, cfg.train_pipeline)
     val_loader = get_dataset(cfg.val_data, cfg.val_pipeline)
-    image_dir = 'exp'
-    transform = T.ToPILImage()
-    for i in range(len(train_loader.dataset)):
-        tensor,_ = train_loader.dataset[i]
-        transformed_img = transform(tensor)
-        image_filename = os.path.join(image_dir, f'{i}.jpg')
-        transformed_img.save(image_filename)
+
+    image_dir = 'experiment'
+    print(image_dir)
+    if not os.path.exists(image_dir):
+        os.makedirs(image_dir)
+
+    save_augs(train_loader.dataset, image_dir)
     ##############################################################################
     classes = train_loader.dataset.classes
     device = torch.device(cfg.device)

@@ -29,6 +29,9 @@ experiment = {
 
 img_size = 128
 
+mean=(0.485, 0.456, 0.406)
+std=(0.229, 0.224, 0.225)
+
 train_pipeline = A.Compose(
     [
         # A.Resize(img_size, img_size, interpolation=cv2.INTER_AREA),
@@ -75,8 +78,8 @@ train_pipeline = A.Compose(
             p=0.5,
         ),
         A.Normalize(
-            mean=(0.485, 0.456, 0.406),
-            std=(0.229, 0.224, 0.225),
+            mean=mean,
+            std=std,
         ),
         ToTensorV2(),
     ]
@@ -112,8 +115,8 @@ weighted_sampling : works only for single task
 
 train_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/nkb-classification/coco8.yaml",
-    "image_base_dir": '/root/nkb-classification/nkb_classification/datasets',
+    "annotations_file": "/root/Projects/nkb-classification/coco8.yaml",
+    "image_base_dir": '/root/Projects/nkb-classification/nkb_classification/datasets',
     "target_column": target_column,
     "fold": "train",
     "weighted_sampling": True,
@@ -126,7 +129,7 @@ train_data = {
 
 val_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/nkb-classification/coco8.yaml",
+    "annotations_file": "/root/Projects/nkb-classification/coco8.yaml",
     "target_column": target_column,
     "fold": "val",
     "weighted_sampling": False,

@@ -328,18 +328,23 @@ class AnnotatedYOLODataset(Dataset):
 
         self.class_to_idx = {lb: idx for idx, lb in self.idx_to_class.items()}
         image_base_dir = os.path.join(self.yaml_data['path'], self.yaml_data[self.fold])
+        print()
+        print('self.yaml_data[self.fold]', self.yaml_data[self.fold])
+        print('self.yaml_data["path"]', self.yaml_data['path'])
+        print('image_base_dir', image_base_dir)
 
         if not os.path.exists(image_base_dir):
             #loading marking dataset for yolo
             url = self.yaml_data["download"]
             r = requests.get(url)
             z = zipfile.ZipFile(io.BytesIO(r.content))
-            z.extractall(image_base_dir)
+            z.extractall(os.path.dirname(self.yaml_data['path']))
             print(f"Finish loading dataset by {self.yaml_data['download']}")
         
         #dict_bbx[abs idx] = filename (eqial for img and txt), number of line in txt file
         self.dict_bbx = {}
         idx = -1
+
         labels_base_dir = image_base_dir.replace('images', 'labels')
         assert os.path.exists(labels_base_dir) and os.path.isdir(labels_base_dir), \
             f"Directory {labels_base_dir} does not exist"
