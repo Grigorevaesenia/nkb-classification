@@ -3,6 +3,7 @@ import torchvision.transforms as T
 from PIL import Image
 import os
 import torch
+import numpy as np
 
 from configs.singletask_on_yolo_crops_config import mean, std
 
@@ -27,15 +28,19 @@ class UnNormalize(object):
 
 
 def save_augs(dataset, image_dir='exp'):
-    transform = T.ToPILImage()
-
-    for i in range(len(dataset)):
+    transform = T.ToPILImage() 
+    num_samples = 50
+    if len(dataset) < num_samples: num_samples = len(dataset)
+    
+    for i in range(num_samples):
         tensor_img,_ = dataset[i]
-        print()
-        print('torch.mean(tensor_img, dim=(1, 2)), torch.std(tensor_img, dim=(1, 2))', torch.mean(tensor_img, dim=(1, 2)), torch.std(tensor_img, dim=(1, 2)))
         # unorm = UnNormalize(torch.mean(tensor_img, dim=(1, 2)), torch.std(tensor_img, dim=(1, 2)))
         unorm = UnNormalize(mean=mean, std=std)
         image = transform(unorm(tensor_img))
         image_filename = os.path.join(image_dir, f'{i}.jpg')
         image.save(image_filename)
+        image = cv2.imread(image_filename)
+        Cimg = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite(image_filename, Cimg)
+        
 

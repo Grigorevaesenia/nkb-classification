@@ -3,18 +3,22 @@ from nkb_classification.dataset import AnnotatedSingletaskDataset, AnnotatedYOLO
 
 import cv2
 import pandas as pd
-datasetYOLO = AnnotatedYOLODataset("/root/nkb-classification/coco8.yaml", fold='train', target_column=None, transform = Transforms(pipeline))
 
-for i in range(len(datasetYOLO)):
-    img, _ = datasetYOLO[i]
-    cv2.imwrite(f'nkb_classification/test_val_crops/saved_img{i}.jpg', img)
+img = cv2.imread('/root/Projects/nkb-classification/experiment/1752 changed.jpg')
+Cimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+cv2.imwrite('/root/Projects/nkb-classification/ccccccccccccccc.jpg', Cimg)
+# datasetYOLO = AnnotatedYOLODataset("/root/nkb-classification/coco8.yaml", fold='train', target_column=None, transform = Transforms(pipeline))
 
-for idx, class_label in datasetYOLO.idx_to_class.items():
-    print(f"{idx}: '{class_label}'", end=", ")
+# for i in range(len(datasetYOLO)):
+#     img, _ = datasetYOLO[i]
+#     cv2.imwrite(f'nkb_classification/test_val_crops/saved_img{i}.jpg', img)
 
-print()
+# for idx, class_label in datasetYOLO.idx_to_class.items():
+#     print(f"{idx}: '{class_label}'", end=", ")
 
-print([datasetYOLO.class_to_idx[label] for label in datasetYOLO.get_labels()])
+# print()
+
+# print([datasetYOLO.class_to_idx[label] for label in datasetYOLO.get_labels()])
     
 # labelsYOLO = datasetYOLO.get_labels()
 # print('labels AnnotatedYOLODataset:', labelsYOLO, type(labelsYOLO), '\n')

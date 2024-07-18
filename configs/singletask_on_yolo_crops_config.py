@@ -22,7 +22,7 @@ model_path = f"/root/nkb-classification/exp"
 experiment = {
     "api_key_path": "configs/comet_api_key.txt",
     "project_name": "nkb-classification",
-    "workspace": "grishkayesenin",
+    "workspace": "grigorevaesenia",
     "auto_metric_logging": False,
     "name": split(model_path)[-1],
 }
@@ -96,8 +96,8 @@ val_pipeline = A.Compose(
             # border_mode=cv2.BORDER_CONSTANT,
         ),
         A.Normalize(
-            mean=(0.485, 0.456, 0.406),
-            std=(0.229, 0.224, 0.225),
+            mean=mean,
+            std=std,
         ),
         ToTensorV2(),
     ]
@@ -115,7 +115,7 @@ weighted_sampling : works only for single task
 
 train_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/Projects/nkb-classification/coco8.yaml",
+    "annotations_file": "/root/Projects/nkb-classification/african-wildlife.yaml",
     "image_base_dir": '/root/Projects/nkb-classification/nkb_classification/datasets',
     "target_column": target_column,
     "fold": "train",
@@ -129,7 +129,7 @@ train_data = {
 
 val_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/Projects/nkb-classification/coco8.yaml",
+    "annotations_file": "/root/Projects/nkb-classification/african-wildlife.yaml",
     "target_column": target_column,
     "fold": "val",
     "weighted_sampling": False,

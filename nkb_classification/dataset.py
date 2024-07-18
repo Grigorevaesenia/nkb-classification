@@ -338,7 +338,7 @@ class AnnotatedYOLODataset(Dataset):
             url = self.yaml_data["download"]
             r = requests.get(url)
             z = zipfile.ZipFile(io.BytesIO(r.content))
-            z.extractall(os.path.dirname(self.yaml_data['path']))
+            z.extractall(self.yaml_data['path'])
             print(f"Finish loading dataset by {self.yaml_data['download']}")
         
         #dict_bbx[abs idx] = filename (eqial for img and txt), number of line in txt file
