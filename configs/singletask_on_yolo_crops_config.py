@@ -115,7 +115,7 @@ weighted_sampling : works only for single task
 
 train_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/Projects/nkb-classification/african-wildlife.yaml",
+    "annotations_file": "/root/Projects/nkb-classification/brain-tumor.yaml",
     "image_base_dir": '/root/Projects/nkb-classification/nkb_classification/datasets',
     "target_column": target_column,
     "fold": "train",
@@ -129,7 +129,7 @@ train_data = {
 
 val_data = {
     "type": "AnnotatedYOLODataset",
-    "annotations_file": "/root/Projects/nkb-classification/african-wildlife.yaml",
+    "annotations_file": "/root/Projects/nkb-classification/brain-tumor.yaml",
     "target_column": target_column,
     "fold": "val",
     "weighted_sampling": False,

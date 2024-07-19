@@ -327,42 +327,45 @@ class AnnotatedYOLODataset(Dataset):
         self.classes = list(self.idx_to_class.values())
 
         self.class_to_idx = {lb: idx for idx, lb in self.idx_to_class.items()}
-        image_base_dir = os.path.join(self.yaml_data['path'], self.yaml_data[self.fold])
-        print()
-        print('self.yaml_data[self.fold]', self.yaml_data[self.fold])
-        print('self.yaml_data["path"]', self.yaml_data['path'])
-        print('image_base_dir', image_base_dir)
 
-        if not os.path.exists(image_base_dir):
-            #loading marking dataset for yolo
-            url = self.yaml_data["download"]
-            r = requests.get(url)
-            z = zipfile.ZipFile(io.BytesIO(r.content))
-            z.extractall(self.yaml_data['path'])
-            print(f"Finish loading dataset by {self.yaml_data['download']}")
         
-        #dict_bbx[abs idx] = filename (eqial for img and txt), number of line in txt file
+        if not isinstance(self.yaml_data[self.fold], list):
+            self.yaml_data[self.fold] = [self.yaml_data[self.fold]]
+
+        image_base_dirs = list(map(lambda x: os.path.join(self.yaml_data['path'], x), self.yaml_data[self.fold]))
+        
         self.dict_bbx = {}
         idx = -1
+        
+        for image_base_dir in image_base_dirs:
+            if not os.path.exists(image_base_dir):
+                #loading marking dataset for yolo
+                url = self.yaml_data["download"]
+                r = requests.get(url)
+                z = zipfile.ZipFile(io.BytesIO(r.content))
+                z.extractall(self.yaml_data['path'])
+                print(f"Finish loading dataset by {self.yaml_data['download']}")
+            
+            #dict_bbx[abs idx] = filename (eqial for img and txt), number of line in txt file
 
-        labels_base_dir = image_base_dir.replace('images', 'labels')
-        assert os.path.exists(labels_base_dir) and os.path.isdir(labels_base_dir), \
-            f"Directory {labels_base_dir} does not exist"
-       
-        for image_filename in sorted(os.listdir(image_base_dir)):
-            filename, _ = os.path.splitext(image_filename)
-            txt_file = os.path.join(labels_base_dir, f'{filename}.txt')
-            # checking if it is a file
-            if not os.path.isfile(txt_file):
-                continue
+            labels_base_dir = image_base_dir.replace('images', 'labels')
+            assert os.path.exists(labels_base_dir) and os.path.isdir(labels_base_dir), \
+                f"Directory {labels_base_dir} does not exist"
+        
+            for image_filename in sorted(os.listdir(image_base_dir)):
+                filename, _ = os.path.splitext(image_filename)
+                txt_file = os.path.join(labels_base_dir, f'{filename}.txt')
+                # checking if it is a file
+                if not os.path.isfile(txt_file):
+                    continue
 
-            with open(txt_file, 'r') as fp:
-                lines = fp.readlines()
+                with open(txt_file, 'r') as fp:
+                    lines = fp.readlines()
 
-            for num_of_line in range(len(lines)):
-                idx += 1
-                label = self.idx_to_class[int(lines[num_of_line][0])]
-                self.dict_bbx[idx] = image_filename, num_of_line, label
+                for num_of_line in range(len(lines)):
+                    idx += 1
+                    label = self.idx_to_class[int(lines[num_of_line][0])]
+                    self.dict_bbx[idx] = image_filename, num_of_line, label
 
     def __len__(self):   
         return len(self.dict_bbx)
@@ -371,34 +374,39 @@ class AnnotatedYOLODataset(Dataset):
         image_filename, num_of_line, _ = self.dict_bbx[idx]
         filename, _ = os.path.splitext(image_filename)
 
-        image_base_dir = os.path.join(self.yaml_data['path'], self.yaml_data[self.fold])
-        img_filename = os.path.join(image_base_dir, image_filename)
-        txt_filename = os.path.join(image_base_dir.replace('images', 'labels'), f'{filename}.txt')
+        if not isinstance(self.yaml_data[self.fold], list):
+            self.yaml_data[self.fold] = [self.yaml_data[self.fold]]
 
-        with open(txt_filename, 'r') as fp:
-            lines = fp.readlines()
+        image_base_dirs = list(map(lambda x: os.path.join(self.yaml_data['path'], x), self.yaml_data[self.fold]))
 
-        line = lines[num_of_line].split()
-        assert len(line) >= 5, f'Got line with len eqial {len(line)}'
-        line = line[:5]
-        labels = np.array(line[0], dtype=np.int64)
-        x_center, y_center, width, height =  np.array(line[1:], np.float32)
-        
-        img = cv2.imread(img_filename)
-              
-        image_height, image_width, _ = img.shape
+        for image_base_dir in image_base_dirs:
+            img_filename = os.path.join(image_base_dir, image_filename)
+            txt_filename = os.path.join(image_base_dir.replace('images', 'labels'), f'{filename}.txt')
 
-        x_min = int((x_center - width / 2) * image_width)
-        y_min = int((y_center - height / 2) * image_height)
-        x_max = int((x_center + width / 2) * image_width)
-        y_max = int((y_center + height / 2) * image_height)
-        
-        img = img[y_min:y_max, x_min:x_max]
+            with open(txt_filename, 'r') as fp:
+                lines = fp.readlines()
 
-        if self.transform is not None:
-            return self.transform(img), labels
+            line = lines[num_of_line].split()
+            assert len(line) >= 5, f'Got line with len eqial {len(line)}'
+            line = line[:5]
+            labels = np.array(line[0], dtype=np.int64)
+            x_center, y_center, width, height =  np.array(line[1:], np.float32)
+            
+            img = cv2.imread(img_filename)
+                
+            image_height, image_width, _ = img.shape
 
-        return img, labels
+            x_min = int((x_center - width / 2) * image_width)
+            y_min = int((y_center - height / 2) * image_height)
+            x_max = int((x_center + width / 2) * image_width)
+            y_max = int((y_center + height / 2) * image_height)
+            
+            img = img[y_min:y_max, x_min:x_max]
+
+            if self.transform is not None:
+                return self.transform(img), labels
+
+            return img, labels
 
     def get_labels(self):
         return np.array([
